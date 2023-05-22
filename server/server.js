@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const db = require('./config/connection');
 const { authMiddleware } = require('./utils/auth');
+require('dotenv').config();
 
 //import apolloserver class from apolloserver express package
 const { ApolloServer } = require('apollo-server-express'); 
@@ -29,6 +30,11 @@ app.use(express.json());
 // if we're in production, serve client/build as static assets
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
+
+  // Serve the client's index.html file in production mode
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
 }
 
 const startApolloServer = async (typeDefs, resolvers) => {
