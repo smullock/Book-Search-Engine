@@ -68,35 +68,28 @@ const SearchBooks = () => {
   };
 
   const handleSaveBook = async (bookId) => {
-    // Find the book in `searchedBooks` state by the matching id
+    // find the book in `searchedBooks` state by the matching id
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
   
-    // Get token
+    // get token
     const token = Auth.loggedIn() ? Auth.getToken() : null;
   
     if (!token) {
       return false;
     }
   
-    const { bookId: savedBookId, title, authors, description, image } = bookToSave; // Rename bookId to savedBookId
-  
     try {
-      await saveBook({
-        variables: {
-          book: { bookId: savedBookId, title, authors, description, image }, // Use savedBookId as the variable
-        },
-        update: (cache, { data }) => {
-          const { me } = cache.readQuery({ query: GET_ME });
-  
-          cache.writeQuery({
-            query: GET_ME,
-            data: { me: { ...me, savedBooks: [...me.savedBooks, data.saveBook] } },
-          });
+      const { data } = await saveBook({
+        variables: { input: bookToSave },
+        context: {
+          headers: {
+            authorization: `Bearer ${token}`,
+          },
         },
       });
   
-      // If book successfully saves to user's account, save book id to state
-      setSavedBookIds([...savedBookIds, savedBookId]);
+      // if book successfully saves to user's account, save book id to state
+      setSavedBookIds([...savedBookIds, bookToSave.bookId]);
     } catch (err) {
       console.error(err);
     }

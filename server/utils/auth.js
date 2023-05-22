@@ -7,7 +7,7 @@ const expiration = '2h';
 module.exports = {
   // function for our authenticated routes
   authMiddleware: ({ req }) => {
-    // allows token to be sent via req.query or headers
+    // allows token to be sent via  req.query or headers
     let token = req.query.token || req.headers.authorization;
 
     // ["Bearer", "<tokenvalue>"]
@@ -18,9 +18,9 @@ module.exports = {
     // verify token and get user data out of it
     if (token) {
       try {
-        const { user } = jwt.verify(token, secret);
-        req.user = user; // Assuming the user data is directly available in the token payload
-      } catch (err) {
+        const { data } = jwt.verify(token, secret, { maxAge: expiration });
+        req.user = data;
+      } catch {
         console.log('Invalid token');
       }
     }
